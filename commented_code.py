@@ -90,32 +90,3 @@
 #     player = await voice_client.create_ytdl_player(url)
 #     players[server.id] = player
 #     player.start()
-
-
-# @client.event
-# async def on_voice_state_update(member, before, after):
-#     user = member.id
-#     voice_client = discord.utils.get(client.voice_clients, guild = member.guild)
-
-#     '''
-#     try:
-#         if after.requested_to_speak_at() is not None:
-#             print("gospod bog")
-#     except:
-#         print("ne e gospod")
-#     #if before.requested_to_speak_at() is not after.requested_to_speak_at():
-#         #print("gospod bog")
-#     voice_manager = discord.GetVoiceManager()
-#     inputMode = voice_manager.GetInputMode()
-#     if inputMode.Type == 1:
-#         print("da, gospod e")
-#         '''
-
-#     if user == boss:
-#         if after.channel is not None:
-#             if before.channel is None:
-#                 await after.channel.connect()
-#             elif before.channel is not after.channel and voice_client is not None:
-#                 await member.guild.voice_client.move_to(after.channel)
-#             elif before.channel is not after.channel and voice_client is None:
-#                 await after.channel.connect()
