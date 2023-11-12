@@ -1,2 +1,6 @@
 tokens.py
+vosk-model-en-us-0.22/
 voice/
+model/
+model_big/
+model_small/
