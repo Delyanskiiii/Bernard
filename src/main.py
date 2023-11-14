@@ -13,11 +13,11 @@ def main():
     @client.event
     async def on_ready():
         print('{0.user} is online.'.format(client))
-        bernard.init(client)
+        bernard.set_client(client)
 
     @client.event
     async def on_voice_state_update(member, before, after):
-        await bernard.voice.handle_state_update(member, before, after)
+        await bernard.handle_state_update(member, before, after)
 
     client.run(YOUR_BOT_TOKEN)
 
