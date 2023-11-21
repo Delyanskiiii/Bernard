@@ -1,13 +1,20 @@
 import threading
 import speech_recognition as sr
-from vosk import Model, KaldiRecognizer
+import json
+from player import Player
+from vosk import Model, KaldiRecognizer, SetLogLevel
+SetLogLevel(-1)
 from tokens import silence
 
 class Recoginition_Manager():
 
-    def __init__(self, queue) -> None:
+    def __init__(self, queue, voice, client) -> None:
         self.users = {}
+        self.voice = voice
+        self.player = Player()
+        self.client = client
         self.queue = queue
+        self.model = Model(r"../model_small")
         self.recognize = True
         self.t = threading.Thread(target=self.get_data, args=())
         self.t.start()
@@ -17,37 +24,33 @@ class Recoginition_Manager():
             data = self.queue.get()
             if data:
                 if data.ssrc not in self.users:
-                    self.users[data.ssrc] = User(data.ssrc)
+                    self.users[data.ssrc] = User(self.player, self.voice, data.ssrc, self.client, self.model)
 
                 self.users[data.ssrc].recognize(data.decoded_data)
-            
-            else:
-                for user in self.users.values():
-                    user.recognize(silence)
 
     def stop(self):
         self.recognize = False
 
 class User():
 
-    def __init__(self, ssrc) -> None:
-        print('init')
+    def __init__(self, player, voice, ssrc, client, model) -> None:
         self.ssrc = ssrc
-        # self.recognizer = sr.Recognizer()
-        model = Model(r"../model_small")
+        self.player = player
+        self.client = client
+        self.voice = voice
+        self.silence = 0
+        self.words = []
         self.recognizer = KaldiRecognizer(model, 96000)
-        self.recognizer.SetWords(False)
+        # self.recognizer.SetWords(False)
 
     def recognize(self, data):
         if self.recognizer.AcceptWaveform(data):
-            result = self.recognizer.Result()
-            print(result)
-        # audio_data = sr.AudioData(data, frame_rate=90000, sample_width=2)
-        # try:
-        #     # Recognize speech using Google Web Speech API
-        #     text = self.recognizer.recognize_google(audio_data)
-        #     print(text)
-        # except sr.UnknownValueError:
-        #     print("Google Web Speech API could not understand audio")
-        # except sr.RequestError as e:
-        #     print(f"Could not request results from Google Web Speech API; {e}")
+            pass
+        else:
+            partial = self.recognizer.PartialResult()
+            data = json.loads(partial)
+            if data["partial"] != '':
+                self.player.play(self.voice, data["partial"])
+                print(data["partial"])
+                # self.words.append(data["partial"])
+                self.recognizer.Reset()

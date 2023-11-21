@@ -1,5 +1,4 @@
 import time, queue
-from voice import Voice
 from recognition import Recoginition_Manager
 
 class Bernard():
@@ -21,14 +20,12 @@ class Bernard():
         self.voice = await channel.connect()
         self.q = queue.Queue()
         self.voice.start_listening(self.q)
-        self.recognition = Recoginition_Manager(self.q)
-        print('start listening')
+        self.recognition = Recoginition_Manager(self.q, self.voice, self.client)
 
     async def leave_voice(self):
         self.voice.stop_listening()
         self.recognition.stop()
         self.recognition = None
-        print('stop listening')
         await self.voice.disconnect()
         self.q = None
         self.voice = None
