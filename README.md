@@ -1,63 +1,54 @@
-
 # Bernard
 
-Bernard is a Voice-Controlled Discord Music Bot.
-Designed for busy situations that require soundtrack.
-
+Bernard is a Voice-Controlled Discord Music Bot designed for busy situations that require a soundtrack.
 
 ## Authors
 
 - [@Delyanskiiii](https://www.github.com/Delyanskiiii)
 
-
 ## FAQ
 
 #### How to use Bernard without commands?
 
-Quickly Mute and Unmute for him to join the voice channel and then simply say 'Bernard play the Dr. Ford theme'.
+To quickly get Bernard into the voice channel, mute and unmute him. Then, simply say 'Bernard, play the Dr. Ford theme.'
 
-#### How to make him leave?
+#### How to make Bernard leave?
 
-Bernard will automatically leave the voice channel when he is left alone or you can say 'That's enough Bernard'.
-
+Bernard will automatically leave the voice channel when left alone. Alternatively, you can say 'That's enough, Bernard.'
 
 ## Roadmap
 
-- Custom playlists per user
-
-- ChatGPT integration
-
+- Implement custom playlists per user.
+- Integrate ChatGPT for enhanced interactions.
 
 ## Run Locally
 
-Clone the project
+1. Clone the project
 
-```bash
-  git clone https://github.com/Delyanskiiii/Bernard
-```
+    ```bash
+    git clone https://github.com/Delyanskiiii/Bernard
+    ```
 
-Go to the project directory
+2. Go to the project directory
 
-```bash
-  cd Bernard
-```
+    ```bash
+    cd Bernard
+    ```
 
-Install dependencies
+3. Install dependencies
 
-```bash
-  pip install -r requirements.txt
-```
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-Start the server
+4. Start the server
 
-```bash
-  python main.py
-```
-
+    ```bash
+    python main.py
+    ```
 
 ## Tech Stack
 
 **Client:** Pycord
 
-**Recognition:** Vosk
-
+**Speech Recognition:** Vosk
