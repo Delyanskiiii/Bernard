@@ -10,7 +10,7 @@ Bernard is a Voice-Controlled Discord Music Bot designed for busy situations tha
 
 #### How to use Bernard without commands?
 
-To quickly get Bernard into the voice channel, mute and unmute him. Then, simply say 'Bernard, play the Dr. Ford theme.'
+To quickly get Bernard into the voice channel, mute and unmute. Then, simply say something as 'Bernard, play the Dr. Ford theme.'
 
 #### How to make Bernard leave?
 
