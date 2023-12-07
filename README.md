@@ -44,7 +44,7 @@ Bernard will automatically leave the voice channel when left alone. Alternativel
 4. Go to the source directory
 
     ```bash
-    cd src
+    cd bernard
     ```
 
 5. Start the server
