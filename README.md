@@ -1,6 +1,6 @@
 # Bernard
 
-Bernard is a Voice-Controlled Discord Music Bot designed for busy situations that require a soundtrack.
+Bernard is a Voice-Controlled Discord Music Bot designed for busy situations that require a banger soundtrack.
 
 ## Authors
 
