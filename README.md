@@ -41,7 +41,13 @@ Bernard will automatically leave the voice channel when left alone. Alternativel
     pip install -r requirements.txt
     ```
 
-4. Start the server
+4. Go to the source directory
+
+    ```bash
+    cd src
+    ```
+
+5. Start the server
 
     ```bash
     python main.py
