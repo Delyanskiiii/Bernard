@@ -1,5 +1,5 @@
 import youtube_dl
-import discord
+# import discord
 
 # async def shoa(client, query):
 #     loop = client.loop
@@ -22,35 +22,36 @@ import discord
 
 #     return None
 
+# discord.FFmpegPCMAudio(executable="C:/ffmpeg/ffmpeg.exe", source="../voice/fipo/crazy.mp3")
 class Player():
     
-    def __init__(self):
-      self.playing = False
+    def __init__(self, voice):
+      self.voice = voice
+      self.audio = None
 
-    def play(self, voice, command):
-        print(command)
-        if command == 'crazy':
-          try:
-            voice.play(discord.FFmpegPCMAudio(executable="C:/ffmpeg/ffmpeg.exe", source="../voice/fipo/crazy.mp3"))
-          except Exception as e:
-             print(e)
-        elif command == 'octane' or command == 'high-octane':
-          try:
-            voice.play(discord.FFmpegPCMAudio(executable="C:/ffmpeg/ffmpeg.exe", source="../voice/system/murder.mp3"))
-          except:
-            pass
-        elif command == 'mother':
-          try:
-            voice.play(discord.FFmpegPCMAudio(executable="C:/ffmpeg/ffmpeg.exe", source="../voice/system/steel.mp3"))
-          except:
-            pass
-        elif command == 'sigma':
-          try:
-            voice.play(discord.FFmpegPCMAudio(executable="C:/ffmpeg/ffmpeg.exe", source="../voice/system/sigma.mp3"))
-          except:
-            pass
-        else:
-           pass
+    def reset_audio(self):
+        self.audio = None
+    
+    def get_audio(self):
+        print(self.audio)
+
+    def play(self, audio):
+        if not self.audio:
+            self.audio = audio
+            self.voice.play(self.audio, after=lambda e: self.reset_audio())
+
+    def pause(self):
+        if self.audio:
+            self.voice.stop()
+
+    def resume(self):
+        if self.audio:
+            self.voice.resume()
+
+    def set_volume(self, volume):
+        if self.audio:
+            current_volume = max(0.0, min(1.0, volume))
+            self.audio.volume = current_volume
         # if not self.playing:
         #     ydl_opts = {
         #       'format': 'bestaudio',
