@@ -1,4 +1,4 @@
-import youtube_dl
+# import youtube_dl
 import discord
 # import discord
 
