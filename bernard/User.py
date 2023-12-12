@@ -8,7 +8,7 @@ from queue import Queue
 class User():
     '''Represents user in voice channel.
     Handles all the data for it's user and transcribes it.
-    Returns the bulgarian transcription.
+    Returns the [bulgarian, english] transcriptions.
     '''
     def __init__(self) -> None:
         self.data = b''

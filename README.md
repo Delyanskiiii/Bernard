@@ -1,6 +1,9 @@
 # Bernard
 
 Bernard is a Voice-Controlled Discord Music Bot designed for busy situations that require a banger soundtrack.
+Bernard perpetually monitors the connected voice channel, processing incoming bytes on a per-user basis. 
+When a user speaks, Bernard transcribes the audio using Google Speech Recognition and endeavors to identify and execute commands. 
+Among its functionalities, Bernard can play audio, pause, resume, stop, and trigger predefined sounds associated with specific code words.
 
 ## Authors
 
@@ -55,6 +58,6 @@ Bernard will automatically leave the voice channel when left alone. Alternativel
 
 ## Tech Stack
 
-**Client:** Pycord
+**Client:** Custom Pycord fork
 
-**Speech Recognition:** Vosk
+**Speech Recognition:** Google Speech Recognition

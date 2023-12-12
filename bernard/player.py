@@ -1,4 +1,5 @@
 import youtube_dl
+import discord
 # import discord
 
 # async def shoa(client, query):
@@ -30,6 +31,7 @@ class Player():
       self.audio = None
 
     def reset_audio(self):
+        print('reseting')
         self.audio = None
     
     def get_audio(self):
@@ -40,9 +42,14 @@ class Player():
             self.audio = audio
             self.voice.play(self.audio, after=lambda e: self.reset_audio())
 
-    def pause(self):
+    def stop(self):
         if self.audio:
             self.voice.stop()
+            self.audio = None
+
+    def pause(self):
+        if self.audio:
+            self.voice.pause()
 
     def resume(self):
         if self.audio:
@@ -51,7 +58,9 @@ class Player():
     def set_volume(self, volume):
         if self.audio:
             current_volume = max(0.0, min(1.0, volume))
-            self.audio.volume = current_volume
+            print(current_volume)
+            self.voice.source.volume = current_volume
+            self.voice.source = discord.PCMVolumeTransformer(self.voice.source, volume=1.0)
         # if not self.playing:
         #     ydl_opts = {
         #       'format': 'bestaudio',

@@ -1,7 +1,10 @@
 import time, queue
 import threading
 from player import Player
-from User import User
+from user import User
+import discord
+import re
+import asyncio
 
 class Bernard():
 
@@ -18,7 +21,7 @@ class Bernard():
     def set_client(self, client):
         self.client = client
 
-    def setup(self):
+    async def setup(self):
         if not self.recognize:
             self.recognize = True
             self.t = threading.Thread(target=self.get_data, args=())
@@ -35,21 +38,48 @@ class Bernard():
             else:
                 for user in self.users.values():
                     if user.talking == True and user.transcribing == False and time.time() - 0.1 >= user.last_fed:
-                        print(user.thread())
+                        self.command(user.thread())
+        # await self.leave_voice()
+
+    def command(self, command):
+        print(command)
+        if command[0]:
+            pattern = r'(\d+)%'
+            match = re.search(pattern, command[0])
+
+            if match:
+                self.player.set_volume(float(match.group(1)) / 100)
+
+            if 'майка' in command[0]:
+                self.player.play(discord.FFmpegPCMAudio(executable="C:/ffmpeg/ffmpeg.exe", source="../voice/system/steel.mp3"))
+            if 'чакай' in command[0]:
+                self.player.pause()
+            if 'давай' in command[0]:
+                self.player.resume()
+            if 'стига' in command[0]:
+                self.player.stop()
+
+        if command[1]:
+            if 'octane' in command[1] or 'murder in my' in command[1]:
+                self.player.play(discord.FFmpegPCMAudio(executable="C:/ffmpeg/ffmpeg.exe", source="../voice/system/murder.mp3"))
+            # if "that's enough" in command[1]:
+            #     self.recognize = False
 
     async def join_voice(self, channel):
         self.voice = await channel.connect()
         self.q = queue.Queue()
         self.voice.start_listening(self.q)
         self.player = Player(self.voice)
-        self.setup()
+        await self.setup()
 
     async def leave_voice(self):
+        self.player.stop()
         self.voice.stop_listening()
         self.recognize = False
         await self.voice.disconnect()
         self.q = None
         self.voice = None
+        self.player = None
 
     async def handle_state_update(self, member, before, after):
         print(self.ssrc_map)
