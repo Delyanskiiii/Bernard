@@ -15,6 +15,7 @@ class Bernard():
         self.voice = None
         self.client = None
         self.users = {}
+        self.command_queue = queue.Queue()
         self.player = None
         self.recognize = False
 
@@ -32,13 +33,16 @@ class Bernard():
             data = self.q.get()
             if data:
                 if data.ssrc not in self.users:
-                    self.users[data.ssrc] = User()
+                    self.users[data.ssrc] = User(self.command_queue)
 
                 self.users[data.ssrc].feed_data(data)
             else:
                 for user in self.users.values():
                     if user.talking == True and user.transcribing == False and time.time() - 0.1 >= user.last_fed:
-                        self.command(user.thread())
+                        user.thread()
+
+            if not self.command_queue.empty():
+                self.command(self.command_queue.get_nowait())
         # await self.leave_voice()
 
     def command(self, command):

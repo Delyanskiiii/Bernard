@@ -8,34 +8,34 @@ from queue import Queue
 class User():
     '''Represents user in voice channel.
     Handles all the data for it's user and transcribes it.
-    Returns the [bulgarian, english] transcriptions.
+    Passes [bulgarian, english] transcriptions to the command queue.
     '''
-    def __init__(self) -> None:
+    def __init__(self, queue) -> None:
         self.data = b''
         self.transcribing = False
         self.talking = False
+        self.queue = queue
         self.last_fed = time.time()
+        self.first_fed = None
         self.r = sr.Recognizer()
 
     def feed_data(self, data):
         if not self.talking:
             self.data = b''
+            self.first_fed = time.time()
             self.talking = True
         self.data = self.data + data.decoded_data
         self.last_fed = time.time()
 
     def thread(self):
         self.talking = False
+        if self.first_fed + 0.2 > time.time():
+            return
+        
         self.transcribing = True
 
-        queue = Queue()
-        thread = threading.Thread(target=self.transcribe, args=(queue,),)
+        thread = threading.Thread(target=self.transcribe, args=(self.queue,),)
         thread.start()
-
-        thread.join()
-        self.transcribing = False
-
-        return queue.get()
 
     def transcribe(self, queue):
         audio_segment = AudioSegment(
@@ -61,4 +61,5 @@ class User():
         except:
             commands.append(None)
 
-        queue.put(commands)
+        self.transcribing = False
+        queue.put_nowait(commands)
