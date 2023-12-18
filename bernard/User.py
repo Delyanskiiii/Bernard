@@ -3,7 +3,6 @@ import threading
 import speech_recognition as sr
 
 from pydub import AudioSegment
-from queue import Queue
 
 class User():
     '''Represents user in voice channel.

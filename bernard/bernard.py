@@ -18,6 +18,13 @@ class Bernard():
         self.command_queue = queue.Queue()
         self.player = None
         self.recognize = False
+        self.commands = {
+            ['play', 'пусни']: self.player.play(),
+            ['pause', 'пауза']: self.player.pause(),
+            ['resume', 'продължи']: self.player.resume(),
+            ['stop', 'спри']: self.player.stop(),
+            ['skip', 'следваща']: self.player.skip(),
+        }
 
     def set_client(self, client):
         self.client = client
@@ -45,8 +52,10 @@ class Bernard():
                 self.command(self.command_queue.get_nowait())
         # await self.leave_voice()
 
-    def command(self, command):
-        print(command)
+    def command(self, commands):
+        print(commands)
+        for command in commands:
+            words = command.split()
         if command[0]:
             pattern = r'(\d+)%'
             match = re.search(pattern, command[0])
@@ -64,8 +73,9 @@ class Bernard():
                 self.player.stop()
 
         if command[1]:
-            if 'octane' in command[1] or 'murder in my' in command[1]:
-                self.player.play(discord.FFmpegPCMAudio(executable="C:/ffmpeg/ffmpeg.exe", source="../voice/system/murder.mp3"))
+            self.player.play(command[1])
+            # if 'octane' in command[1] or 'murder in my' in command[1]:
+            #     self.player.play(discord.FFmpegPCMAudio(executable="C:/ffmpeg/ffmpeg.exe", source="../voice/system/murder.mp3"))
             # if "that's enough" in command[1]:
             #     self.recognize = False
 
