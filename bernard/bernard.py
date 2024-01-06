@@ -2,9 +2,6 @@ import time, queue
 import threading
 from player import Player
 from user import User
-import discord
-import re
-import asyncio
 
 class Bernard():
 
@@ -18,13 +15,8 @@ class Bernard():
         self.command_queue = queue.Queue()
         self.player = None
         self.recognize = False
-        self.commands = {
-            ['play', 'пусни']: self.player.play(),
-            ['pause', 'пауза']: self.player.pause(),
-            ['resume', 'продължи']: self.player.resume(),
-            ['stop', 'спри']: self.player.stop(),
-            ['skip', 'следваща']: self.player.skip(),
-        }
+        self.simple_commands = None
+        self.advanced_commands = None
 
     def set_client(self, client):
         self.client = client
@@ -46,44 +38,43 @@ class Bernard():
             else:
                 for user in self.users.values():
                     if user.talking == True and user.transcribing == False and time.time() - 0.1 >= user.last_fed:
-                        user.thread()
+                        user.transcribe_data()
 
             if not self.command_queue.empty():
                 self.command(self.command_queue.get_nowait())
-        # await self.leave_voice()
 
     def command(self, commands):
-        print(commands)
         for command in commands:
-            words = command.split()
-        if command[0]:
-            pattern = r'(\d+)%'
-            match = re.search(pattern, command[0])
+            if command:
+                for word in self.advanced_commands:
+                    start_index = command.find(word)
 
-            if match:
-                self.player.set_volume(float(match.group(1)) / 100)
+                    if start_index != -1:
+                        print(command[start_index + len(word):])
+                        self.player.play(command[start_index + len(word):])
+                        return
 
-            if 'майка' in command[0]:
-                self.player.play(discord.FFmpegPCMAudio(executable="C:/ffmpeg/ffmpeg.exe", source="../voice/system/steel.mp3"))
-            if 'чакай' in command[0]:
-                self.player.pause()
-            if 'давай' in command[0]:
-                self.player.resume()
-            if 'стига' in command[0]:
-                self.player.stop()
-
-        if command[1]:
-            self.player.play(command[1])
-            # if 'octane' in command[1] or 'murder in my' in command[1]:
-            #     self.player.play(discord.FFmpegPCMAudio(executable="C:/ffmpeg/ffmpeg.exe", source="../voice/system/murder.mp3"))
-            # if "that's enough" in command[1]:
-            #     self.recognize = False
+                words = command.split()
+                for word in words:
+                    for key, value in self.simple_commands.items():
+                        list = key.split()
+                        if word in list:
+                            print(word)
+                            value()
+                            return
 
     async def join_voice(self, channel):
         self.voice = await channel.connect()
         self.q = queue.Queue()
         self.voice.start_listening(self.q)
         self.player = Player(self.voice)
+        self.simple_commands = {
+            'pause пауза': self.player.pause,
+            'resume продължи': self.player.resume,
+            'stop спри': self.player.stop,
+            'skip следваща': self.player.skip,
+        }
+        self.advanced_commands = ['play', 'пусни']
         await self.setup()
 
     async def leave_voice(self):
@@ -93,11 +84,10 @@ class Bernard():
         await self.voice.disconnect()
         self.q = None
         self.voice = None
+        self.commands = None
         self.player = None
 
     async def handle_state_update(self, member, before, after):
-        print(self.ssrc_map)
-
         if self.voice and self.voice.ws:
             self.ssrc_map = self.voice.ws.ssrc_map
 

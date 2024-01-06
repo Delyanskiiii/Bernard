@@ -26,7 +26,7 @@ class User():
         self.data = self.data + data.decoded_data
         self.last_fed = time.time()
 
-    def thread(self):
+    def transcribe_data(self):
         self.talking = False
         if self.first_fed + 0.2 > time.time():
             return
