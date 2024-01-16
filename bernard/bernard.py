@@ -1,5 +1,6 @@
 import time, queue
 import threading
+import asyncio
 from player import Player
 from user import User
 
@@ -16,18 +17,32 @@ class Bernard():
         self.player = None
         self.recognize = False
         self.simple_commands = None
-        self.advanced_commands = None
+        self.play_commands = None
+        self.leave_commands = None
 
     def set_client(self, client):
         self.client = client
 
+    def between_callback(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        loop.run_until_complete(self.get_data())
+        loop.close()
+
     async def setup(self):
         if not self.recognize:
             self.recognize = True
-            self.t = threading.Thread(target=self.get_data, args=())
+            # future = asyncio.Future()
+            # asyncio.create_task(self.get_data())
+            self.t = threading.Thread(target=self.between_callback, args=())
             self.t.start()
 
-    def get_data(self):
+            # result = await future
+            # if result:
+            #     await self.leave_voice()
+
+    async def get_data(self):
         while self.recognize:
             data = self.q.get()
             if data:
@@ -41,17 +56,28 @@ class Bernard():
                         user.transcribe_data()
 
             if not self.command_queue.empty():
-                self.command(self.command_queue.get_nowait())
+                await self.command(self.command_queue.get_nowait())
+        
+        # future.set_result(True)
 
-    def command(self, commands):
+    async def command(self, commands):
         for command in commands:
             if command:
-                for word in self.advanced_commands:
+                for word in self.play_commands:
                     start_index = command.find(word)
 
                     if start_index != -1:
-                        print(command[start_index + len(word):])
-                        self.player.play(command[start_index + len(word):])
+                        print(command[start_index + len(word) + 1:])
+                        loop = asyncio.get_event_loop()
+                        await self.player.play(command[start_index + len(word):], loop)
+                        return
+                    
+                for word in self.leave_commands:
+                    start_index = command.find(word)
+
+                    if start_index != -1:
+                        print(word)
+                        self.recognize = False
                         return
 
                 words = command.split()
@@ -69,16 +95,15 @@ class Bernard():
         self.voice.start_listening(self.q)
         self.player = Player(self.voice)
         self.simple_commands = {
-            'pause пауза': self.player.pause,
-            'resume продължи': self.player.resume,
-            'stop спри': self.player.stop,
-            'skip следваща': self.player.skip,
+            'pause пауза паузирай': self.player.pause,
+            'resume продълж': self.player.resume,
+            'skip следваща stop спри': self.player.skip,
         }
-        self.advanced_commands = ['play', 'пусни']
+        self.play_commands = ['play', 'пусни']
+        self.leave_commands = ["that's enough", 'leave']
         await self.setup()
 
     async def leave_voice(self):
-        self.player.stop()
         self.voice.stop_listening()
         self.recognize = False
         await self.voice.disconnect()
