@@ -1,6 +1,5 @@
 import discord
 import yt_dlp
-import asyncio
 
 class Player():
     '''Represents audio player once in voice channel.
@@ -10,7 +9,7 @@ class Player():
         self.voice = voice
         self.audio = None
         self.queue = []
-        # self.future = asyncio.Future()
+        self.volume = 10
         self.ydl_opts = {
             'format': 'bestaudio/best',
             'noplaylist': True,
@@ -28,32 +27,28 @@ class Player():
             'options': '-vn'
         }
 
-    async def play_next(self, loop):
+    def play_next(self):
+        self.skip()
         print(self.queue)
-        if len(self.queue) == 0:
-            self.skip()
-        else:
-            await self.play(self.queue[0], loop)
-            # self.future.set_result(None)
+        if len(self.queue) > 0:
+            self.play(self.queue[0])
             self.queue.pop(0)
 
-    async def play(self, audio, loop):
-        if not self.audio:
-            with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
-                info = ydl.extract_info(f"ytsearch:{audio}", download=False)
-                url = info['entries'][0]['url']
+    def play(self, audio):
+        if not self.audio and audio != '':
+            try:
+                with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+                    info = ydl.extract_info(f"ytsearch:{audio}", download=False)
+                    url = info['entries'][0]['url']
+                
+                self.audio = discord.FFmpegPCMAudio(url, **self.FFMPEG_OPTIONS)
+                self.voice.play(self.audio, after=lambda e: self.play_next())
+                self.set_volume(self.volume)
+            except Exception as e:
+                print(e)
 
-            audio = await discord.FFmpegOpusAudio.from_probe(url, **self.FFMPEG_OPTIONS)
-            # future = asyncio.Future()
-            self.audio = audio
-            self.voice.play(self.audio, after=lambda e: asyncio.run_coroutine_threadsafe(self.play_next(loop), loop))
-            # result = await future
-            # if result:
-            #     await self.play_next()
         else:
-            print('append')
             self.queue.append(audio)
-            print(self.queue)
 
     def pause(self):
         if self.audio:
@@ -68,9 +63,10 @@ class Player():
             self.voice.stop()
             self.audio = None
 
-    # def set_volume(self, volume):
-    #     if self.audio:
-    #         current_volume = max(0.0, min(1.0, volume))
-    #         print(current_volume)
-    #         self.voice.source.volume = current_volume
-    #         self.voice.source = discord.PCMVolumeTransformer(self.voice.source, volume=1.0)
+    def clear_queue(self):
+        self.queue = []
+
+    def set_volume(self, volume):
+        if self.audio:
+            print(volume/100)
+            self.voice.source = discord.PCMVolumeTransformer(self.voice.source, volume=volume/100)

@@ -19,6 +19,7 @@ class Bernard():
         self.simple_commands = None
         self.play_commands = None
         self.leave_commands = None
+        self.loop = asyncio.get_event_loop()
 
     def set_client(self, client):
         self.client = client
@@ -33,16 +34,10 @@ class Bernard():
     async def setup(self):
         if not self.recognize:
             self.recognize = True
-            # future = asyncio.Future()
-            # asyncio.create_task(self.get_data())
             self.t = threading.Thread(target=self.between_callback, args=())
             self.t.start()
 
-            # result = await future
-            # if result:
-            #     await self.leave_voice()
-
-    async def get_data(self):
+    def get_data(self):
         while self.recognize:
             data = self.q.get()
             if data:
@@ -56,20 +51,36 @@ class Bernard():
                         user.transcribe_data()
 
             if not self.command_queue.empty():
-                await self.command(self.command_queue.get_nowait())
-        
-        # future.set_result(True)
+                self.command(self.command_queue.get_nowait())
 
-    async def command(self, commands):
+        asyncio.run_coroutine_threadsafe(self.leave_voice(), self.loop)
+
+    def command(self, commands):
         for command in commands:
             if command:
+                index_percent = command.find('%')
+                if index_percent != -1:
+                    numeric_part = command[index_percent-3:index_percent]
+                    if numeric_part.isdigit():
+                        self.player.set_volume(int(numeric_part))
+                        return
+                    else:
+                        numeric_part = command[index_percent-2:index_percent]
+                        if numeric_part.isdigit():
+                            self.player.set_volume(int(numeric_part))
+                            return
+                        else:
+                            numeric_part = command[index_percent-1:index_percent]
+                            if numeric_part.isdigit():
+                                self.player.set_volume(int(numeric_part))
+                                return
+
                 for word in self.play_commands:
                     start_index = command.find(word)
 
                     if start_index != -1:
                         print(command[start_index + len(word) + 1:])
-                        loop = asyncio.get_event_loop()
-                        await self.player.play(command[start_index + len(word):], loop)
+                        self.player.play(command[start_index + len(word):])
                         return
                     
                 for word in self.leave_commands:
@@ -98,14 +109,16 @@ class Bernard():
             'pause пауза паузирай': self.player.pause,
             'resume продълж': self.player.resume,
             'skip следваща stop спри': self.player.skip,
+            'clear чисти': self.player.clear_queue,
         }
         self.play_commands = ['play', 'пусни']
         self.leave_commands = ["that's enough", 'leave']
         await self.setup()
 
     async def leave_voice(self):
-        self.voice.stop_listening()
         self.recognize = False
+        self.voice.stop_listening()
+        self.player.clear_queue()
         await self.voice.disconnect()
         self.q = None
         self.voice = None
