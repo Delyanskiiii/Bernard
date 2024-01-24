@@ -24,17 +24,10 @@ class Bernard():
     def set_client(self, client):
         self.client = client
 
-    def between_callback(self):
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-
-        loop.run_until_complete(self.get_data())
-        loop.close()
-
     async def setup(self):
         if not self.recognize:
             self.recognize = True
-            self.t = threading.Thread(target=self.between_callback, args=())
+            self.t = threading.Thread(target=self.get_data, args=())
             self.t.start()
 
     def get_data(self):
