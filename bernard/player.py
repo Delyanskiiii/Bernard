@@ -9,7 +9,7 @@ class Player():
         self.voice = voice
         self.audio = None
         self.queue = []
-        self.volume = 10
+        self.volume = 6
         self.ydl_opts = {
             'format': 'bestaudio/best',
             'noplaylist': True,
@@ -29,7 +29,6 @@ class Player():
 
     def play_next(self):
         self.skip()
-        print(self.queue)
         if len(self.queue) > 0:
             self.play(self.queue[0])
             self.queue.pop(0)
