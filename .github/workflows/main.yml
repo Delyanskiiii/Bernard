@@ -24,7 +24,7 @@ jobs:
           choco install git -y
 
       - name: Build executable
-        run: pyinstaller --onefile main.py
+        run: pyinstaller --onefile src/main.py
 
       - name: Upload executable as release
         uses: actions/upload-artifact@v3
