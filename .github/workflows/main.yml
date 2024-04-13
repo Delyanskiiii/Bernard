@@ -1,0 +1,33 @@
+name: Build and Release Executable
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install pyinstaller
+
+      - name: Install Git (if not already installed)
+        run: |
+          choco install git -y
+
+      - name: Build executable
+        run: pyinstaller --onefile src/main.py
+
+      - name: Upload executable as release
+        uses: actions/upload-artifact@v3
+        with:
+          name: release
+          path: dist/*.exe
