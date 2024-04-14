@@ -1,7 +1,6 @@
 import time
 import threading
 import speech_recognition as sr
-from tokens import da
 
 from pydub import AudioSegment
 
@@ -32,7 +31,6 @@ class User():
         if self.first_fed + 0.2 > time.time():
             return
         
-        self.data = self.data + da
         self.transcribing = True
 
         thread = threading.Thread(target=self.transcribe, args=(self.queue,),)

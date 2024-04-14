@@ -1,11 +1,15 @@
-import sys, discord
+import sys, os, discord
 sys.dont_write_bytecode = True
 
 from discord.ext import commands
-from tokens import YOUR_BOT_TOKEN
 from bernard import Bernard
 
 def main():
+    token = os.getenv('BOT_TOKEN')
+    if token is None:
+        print("Can't find bot token")
+        return
+
     bernard = Bernard()
     intents = discord.Intents.default()
     client = commands.Bot(intents = intents)
@@ -19,7 +23,7 @@ def main():
     async def on_voice_state_update(member, before, after):
         await bernard.handle_state_update(member, before, after)
 
-    client.run(YOUR_BOT_TOKEN)
+    client.run(token)
 
 if __name__ == "__main__":
     main()
