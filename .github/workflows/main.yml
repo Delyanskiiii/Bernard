@@ -17,7 +17,7 @@ jobs:
           python-version: '3.10'
 
       - name: Install pyinstaller
-        run: pip install pyinstaller
+        run: pip install src/pyinstaller
 
       - name: Install dependencies
         run: pip install -r requirements.txt
