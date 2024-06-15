@@ -9,10 +9,10 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
@@ -23,7 +23,7 @@ jobs:
         run: pyinstaller --onefile --add-binary="C:\hostedtoolcache\windows\Python\3.11.9\x64\Lib\site-packages\discord\bin\libopus-0.x64.dll;." src/main.py
 
       - name: Upload executable as release
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: release
           path: dist/*.exe
