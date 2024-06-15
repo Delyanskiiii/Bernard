@@ -9,7 +9,7 @@ class Player():
         self.voice = voice
         self.audio = None
         self.queue = []
-        self.volume = 6
+        self.volume = 5
         self.ydl_opts = {
             'format': 'bestaudio/best',
             'noplaylist': True,
@@ -28,10 +28,12 @@ class Player():
         }
 
     def play_next(self):
-        self.skip()
         if len(self.queue) > 0:
+            self.audio = None
             self.play(self.queue[0])
             self.queue.pop(0)
+        else:
+            self.audio = None
 
     def play(self, audio):
         if not self.audio and audio != '':
@@ -39,9 +41,9 @@ class Player():
                 with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
                     info = ydl.extract_info(f"ytsearch:{audio}", download=False)
                     url = info['entries'][0]['url']
-                
-                self.audio = discord.FFmpegPCMAudio(url, **self.FFMPEG_OPTIONS)
-                self.voice.play(self.audio, after=lambda e: self.play_next())
+
+                self.voice.play(discord.FFmpegPCMAudio(url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_next())
+                self.audio = audio
                 self.set_volume(self.volume)
             except Exception as e:
                 print(e)
@@ -59,8 +61,8 @@ class Player():
 
     def skip(self):
         if self.audio:
-            self.voice.stop()
             self.audio = None
+            self.voice.stop()
 
     def clear_queue(self):
         self.queue = []
