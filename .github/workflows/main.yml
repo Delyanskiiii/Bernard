@@ -19,10 +19,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r src/requirements.txt
 
-      - name: Locate Opus DLL
-        run: |
-          echo "::set-output name=opus_path::$(pip show py-cord | findstr Location)\libopus-0x64.dll"
-
       - name: Build executable
         run: pyinstaller --onefile --add-binary="C:\hostedtoolcache\windows\Python\3.11.9\x64\Lib\site-packages\discord\bin\libopus-0.x64.dll;." src/main.py
 
